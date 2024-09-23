@@ -2,8 +2,8 @@
 import {baseUrl}  from '@/config/constants'
 
 const baseURL = baseUrl;
-const route = "/api/v1"; // client_status
-const apiV1Url = baseURL + route;
+
+const apiV1Url = baseURL + '/api/v1';
 
 export function getQueryParam(key) {
   const urlParams = new URLSearchParams(window.location.search);

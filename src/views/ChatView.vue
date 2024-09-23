@@ -16,7 +16,12 @@ import { message } from 'ant-design-vue'
 import userImg from '@/assets/user.png'
 import aiImg from '@/assets/ai.png'
 import { throttle } from 'lodash-es'
-import { useWindowFocus } from '@vueuse/core'
+import { useWindowFocus, useWindowSize } from '@vueuse/core'
+
+const { width } = useWindowSize()
+const isMobile = computed(() => width.value < 768)
+
+const siderCollapsed = ref(false)
 
 // const sidebarRef = ref<HTMLElement | null>(null)
 
@@ -75,7 +80,7 @@ watch(focused, (newFocused) => {
   }
 })
 
-const devicewidth = document.documentElement.clientWidth //获取当前分辨率下的可是区域宽度
+const devicewidth = ref(document.documentElement.clientWidth)
 
 // 进行黏贴图片的函数处理
 const handlePaste = (event: ClipboardEvent) => {
@@ -162,18 +167,31 @@ const headerStyle: CSSProperties = {
   padding: '15px'
 }
 
-const contentStyle: CSSProperties = {
+const contentStyle = computed(() => ({
   textAlign: 'center',
-  height: 'calc(100vh - 190px)',
+  height: isMobile.value ? 'calc(100vh - 120px)' : 'calc(100vh - 190px)',
   lineHeight: '120px',
   color: '#fff',
   backgroundColor: '#f2f1ea',
-  padding: '20px 20px',
+  padding: isMobile.value ? '10px' : '20px 20px',
   'overflow-x': 'hidden',
   'overflow-y': 'scroll'
-}
+}))
 
-const siderStyle: Ref<CSSProperties> = ref({
+// const siderStyle: Ref<CSSProperties> = ref({
+//   textAlign: 'center',
+//   lineHeight: '120px',
+//   color: '#fff',
+//   backgroundColor: '#f2f1ea',
+//   position: 'relative',
+//   borderRight: '1px solid #ddd',
+//   height: '100vh',
+//   // overflow: 'visible',
+//   overflowY: 'auto', // 添加这一行
+//   overflowX: 'hidden' // 添加这一行
+// })
+
+const siderStyle = computed(() => ({
   textAlign: 'center',
   lineHeight: '120px',
   color: '#fff',
@@ -181,10 +199,9 @@ const siderStyle: Ref<CSSProperties> = ref({
   position: 'relative',
   borderRight: '1px solid #ddd',
   height: '100vh',
-  // overflow: 'scroll'
-  overflowY: 'auto', // 添加这一行
-  overflowX: 'hidden' // 添加这一行
-})
+  overflowY: 'auto',
+  overflowX: 'hidden'
+}))
 
 const zeroWidthTriggerStyle = {
   position: 'absolute',
@@ -222,6 +239,7 @@ const messageContainerHeight = ref(0)
 const messageContainerRef = ref<Element | null>(null)
 const modelDisabled = ref(false)
 const listHeight = ref('calc(100vh - 47px)')
+// const collapse = ref(false)
 const getUrl = (file: File) => {
   return URL.createObjectURL(file)
 }
@@ -252,6 +270,10 @@ const clearState = () => {
   // isArtifactsEnabled.value = false
 }
 
+const toggleSider = () => {
+  siderCollapsed.value = !siderCollapsed.value
+}
+
 const collapse = (type: boolean) => {
   if (!type) {
     siderStyle.value.position = 'absolute'
@@ -262,6 +284,19 @@ const collapse = (type: boolean) => {
     listHeight.value = 'calc(100vh - 47px)'
   }
 }
+
+// function useIsAtBottom(tolerance = 1) {
+
+//   const isAtBottom = computed(() => {
+//     if (!messageContainerRef.value) return false
+
+//     const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.value
+//     return scrollHeight - scrollTop - clientHeight <= tolerance
+//   })
+
+//   return { containerRef, isAtBottom }
+// }
+
 const scrollToBottom = throttle(function (force?: boolean) {
   nextTick(() => {
     if (messageContainerRef.value) {
@@ -274,6 +309,16 @@ const scrollToBottom = throttle(function (force?: boolean) {
     }
   })
 }, 0)
+
+// const isAtBottom
+// const isAtBottom = computed(() => {
+//   const container = messageContainerRef.value
+//   if (!container) return false
+//   return container.scrollHeight - container.clientHeight <= container.scrollTop + 1
+// })
+
+
+
 const beforeUpload: UploadProps['beforeUpload'] = (file) => {
   const maxSize = 10 * 1024 * 1024 // 10MB in bytes
   if (file.size > maxSize) {
@@ -499,14 +544,15 @@ const exit = () => {
   localStorage.removeItem('SJ_API_KEY')
   goUrl('/chat')
 }
-const md = 768
-const sideWidth = devicewidth <= md ? '50vw' : 200
+
+const sideWidth = computed(() => (isMobile.value ? '30vw' : '300px'))
 onMounted(async () => {
   if (!clientType || !clientIdx || !apiKey) {
     message.error('登录无效，请返回重新登录')
     goUrl('/chat')
   }
   sideLoading.value = true
+
   const res = await fetchConversation(clientIdx, clientType, apiKey)
   if (res) {
     list.value = res
@@ -525,14 +571,19 @@ onUnmounted(() => {
 
 <template>
   <div class="chat-view">
-    <a-layout class="absolute w-full">
+    <!-- <div class="tobottom-button" v-if="!isAtBottom">
+      <svg width="50" height="50" viewBox="0 0 50 50">
+        <circle cx="25" cy="25" r="20" fill="#ba5b38" />
+      </svg>
+    </div> -->
+
+    <a-layout class="absolute w-full h-full inset-0">
       <a-layout-sider
-        breakpoint="md"
         collapsed-width="0"
         :style="siderStyle"
         :width="sideWidth"
         :zeroWidthTriggerStyle="zeroWidthTriggerStyle"
-        @collapse="collapse"
+        v-model:collapsed="siderCollapsed"
       >
         <a-spin :spinning="sideLoading">
           <a-list :locale="{ emptyText: '暂无聊天记录' }">
@@ -573,9 +624,29 @@ onUnmounted(() => {
         </a-spin>
       </a-layout-sider>
 
+      <!-- 新添加的控制按钮 -->
+      <!-- <div 
+         >
+          <a-button type="primary" shape="circle" class="toggle-button" @click="toggleSider"
+          :style="toggleButtonStyle">
+            <template #icon>
+              <MenuOutlined v-if="siderCollapsed" />
+              <MenuFoldOutlined v-else />
+            </template>
+          </a-button>
+        </div> -->
+
       <a-layout>
         <a-layout-header :style="headerStyle">
           <div class="w-full flex justify-end">
+            <div
+              class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
+              @click="toggleSider"
+            >
+              <icon icon="icon-switch" :style="{ width: '20px', height: '20px' }"></icon>
+              <span class="ml-2">开启/关闭历史记录</span>
+            </div>
+
             <div
               class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
               @click="newChat"
@@ -657,7 +728,8 @@ onUnmounted(() => {
                     :index="index"
                     :role="item.role"
                     v-if="!item.loading"
-                  ></MarkDownMessage>
+                  >
+                  </MarkDownMessage>
                   <a-spin size="large" v-else />
                 </template>
               </div>
@@ -665,17 +737,6 @@ onUnmounted(() => {
           </div>
         </a-layout-content>
         <a-layout-footer :style="footerStyle">
-          <!--            <div class="w-100px mb-10px absolute z-1 -top-12px left-2">-->
-          <!--              <a-select name="jailbreak" size="small" v-model:value="selectValue" id="jailbreak" placement="topLeft">-->
-          <!--                <a-select-option value="default" selected>default</a-select-option>-->
-          <!--                <a-select-option value="gpt-math-1.0">math 1.0</a-select-option>-->
-          <!--                <a-select-option value="gpt-dude-1.0">dude 1.0</a-select-option>-->
-          <!--                <a-select-option value="gpt-dan-1.0">dan 1.0</a-select-option>-->
-          <!--                <a-select-option value="gpt-dan-2.0">dan 2.0</a-select-option>-->
-          <!--                <a-select-option value="gpt-dev-2.0">dev 2.0</a-select-option>-->
-          <!--                <a-select-option value="gpt-evil-1.0">evil 1.0</a-select-option>-->
-          <!--              </a-select>-->
-          <!--            </div>-->
           <div class="flex items-center w-100px mb-10px absolute z-1 -top-25px left-18px">
             <a-select
               :disabled="modelDisabled"
@@ -685,17 +746,11 @@ onUnmounted(() => {
               placement="topLeft"
               v-model:value="selectModelValue"
             >
-              <a-select-option value="claude-3-sonnet-20240229"
-                >claude-3-sonnet-20240229</a-select-option
-              >
-              <a-select-option value="claude-3-opus-20240229"
-                >claude-3-opus-20240229</a-select-option
-              >
-              <a-select-option value="claude-3-haiku-20240307"
-                >claude-3-haiku-20240307</a-select-option
-              >
+              <a-select-option value="claude-3-sonnet-20240229">claude-3-sonnet</a-select-option>
+              <a-select-option value="claude-3-opus-20240229">claude-3-opus</a-select-option>
+              <a-select-option value="claude-3-haiku-20240307">claude-3-haiku</a-select-option>
               <a-select-option value="claude-3-5-sonnet-20240620"
-                >claude-3-5-sonnet-20240620</a-select-option
+                >claude-3.5-sonnet</a-select-option
               >
             </a-select>
 
@@ -773,6 +828,22 @@ onUnmounted(() => {
   </div>
 </template>
 <style lang="scss">
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .toggle-button {
+    right: -15px;
+  }
+}
+
+/* 新添加的样式 */
+.tobottom-button {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000; /* 确保它在其他元素之上 */
+}
+
 .chat-view {
   .ant-layout {
     background: none;
@@ -782,6 +853,7 @@ onUnmounted(() => {
   .ant-list-items {
     margin: 0px 15px;
   }
+
   .ant-list-items {
     margin-bottom: 15px;
     height: v-bind('listHeight');
@@ -821,15 +893,19 @@ onUnmounted(() => {
   100% {
     transform: scale(1);
   }
+
   15% {
     transform: scale(0.6);
   }
+
   30% {
     transform: scale(0.9);
   }
+
   45% {
     transform: scale(0.6);
   }
+
   60% {
     transform: scale(0.95);
   }

@@ -1,9 +1,4 @@
 <template>
-  <!-- <div
-    class="w-full absolute"
-    style="background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%)"
-  > -->
-
   <div
     class="w-full absolute"
     :style="{
@@ -16,31 +11,6 @@
       <!-- 添加切换按钮 -->
 
       <div class="absolute top-0 right-0 mt-4 mr-4 flex items-center">
-        <!-- <span class="mr-4 text-sm">对话页面切换</span>
-        <a-switch
-          v-model:checked="isDarkMode"
-          :checkedChildren="'🌙'"
-          :unCheckedChildren="'☀️'"
-          @change="toggleDarkMode"
-          class="custom-switch"
-        /> -->
-
-        <!-- <div
-          class="flex justify-center cursor-pointer items-center text-lg font-bold"
-          :style="{
-            color: isDarkMode ? '#ffffff' : '#000000',
-            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
-            padding: '4px 8px',
-            borderRadius: '8px'
-          }"
-        >
-          <span class="mr-2">当前使用量:</span>
-          <span :style="{ color: currentUsage > usageLimit * 0.8 ? '#ff4d4f' : '#52c41a' }">
-            {{ currentUsage }}
-          </span>
-          <span class="mx-1">/</span>
-          <span>{{ usageLimit }}</span>
-        </div> -->
 
         <div
           class="flex justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
@@ -89,38 +59,63 @@
       <a-list
         v-else
         :grid="{ gutter: 1, xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxl: 3 }"
-        :data-source="data"
+        :data-source="[{ id: 'additional', type: 'claude官网', meta_data:{
+          'official_login': true
+        },
+       message: 'Claude官网(联系对接人获取秘钥)'
+        }, ...data, ]"
       >
+
+
         <template #renderItem="{ item }">
           <a-list-item :key="item.idx">
-            <a-card
-              :title="item.id"
-              @click="goUrl(item)"
-              :class="{
-                'cursor-pointer': true,
-                'card-plus': item.type === 'plus',
-                'card-normal': item.type === 'normal',
-                'card-cd': item.status === 'cd',
-                'card-noncd': item.status !== 'cd'
-              }"
-            >
-              <template #extra>
-                <a-tag :color="getTagColor(item)" :visible="item.is_session_login">官网1:1</a-tag>
-                <a-tag
-                  :color="item.type === 'normal' ? '#2db7f5' : '#f50'"
-                  :class="{
-                    'tag-plus': item.type === 'plus',
-                    'tag-normal': item.type === 'normal',
-                    'tag-cd': item.status === 'cd',
-                    'tag-noncd': item.status !== 'cd'
-                  }"
-                  >{{ item.type }}</a-tag
-                >
-              </template>
+         <a-card
+  :title="item.id"
+  @click="goUrl(item)"
+  :class="{
+    'cursor-pointer': true,
+    'card-plus': item.type === 'plus',
+    'card-normal': item.type === 'normal',
+    'card-cd': item.status === 'cd',
+    'card-noncd': item.status !== 'cd'
+  }"
+>
+  <template #extra>
+    <a-tag :color="getTagColor(item)" :visible="item.is_session_login">官网1:1</a-tag>
+    <a-tag
+      :color="item.type === 'normal' ? '#2db7f5' : '#f50'"
+      :class="{
+        'tag-plus': item.type === 'plus',
+        'tag-normal': item.type === 'normal',
+        'tag-cd': item.status === 'cd',
+        'tag-noncd': item.status !== 'cd'
+      }"
+    >
+      {{ item.type }}
+    </a-tag>
+  </template>
 
-              <div>{{ item.status }}</div>
-              <div>状态：{{ item.message }}</div>
-            </a-card>
+  <a-row :gutter="16">
+    <a-col :span="12">
+      <a-statistic 
+        title="使用次数" 
+        :value="item.usage" 
+        :value-style="{ color: '#3f8600' }"
+      />
+    </a-col>
+    <a-col :span="12">
+      <a-statistic
+        title="状态"
+        :value="item.status === 'cd' ? '冷却' : '可用'"
+        :value-style="{ color: item.status === 'cd' ? '#cf1322' : '#3f8600' }"
+      />
+    </a-col>
+  </a-row>
+  <a-tooltip :title="item.message">
+    <div class="message-ellipsis">{{ item.message }}</div>
+  </a-tooltip>
+</a-card>
+
           </a-list-item>
         </template>
       </a-list>
@@ -133,8 +128,10 @@ import { onMounted, ref, computed } from 'vue'
 import type { Ref } from 'vue'
 import { sendRequest, getQueryParam, baseSendRequest } from '@/api/status.js'
 import { message } from 'ant-design-vue'
+import { Card, Tag, Statistic, Row, Col, Tooltip } from 'ant-design-vue';
 import { isPc } from '@/util/is'
 import { reverseClaudeBaseUrl } from '@/config/constants'
+
 import Icon from '@/components/icon/index.vue'
 
 const exit = () => {
@@ -149,18 +146,13 @@ interface DataItem {
   idx: number
   message: string
   is_session_login: boolean
+  usage: number
+  remaining: number
+  // 这个给一个默认值是false
+  // is_official_login: boolean = false
   meta_data: Record<string, any>
 }
 
-// return {
-//             "usage": usage,
-//             "current_usage": current_usage,
-//             "last_usage_time": last_usage_time,
-//             "key_type": key_type,
-//             "expire_time": expire_time,
-//             "is_key_valid": is_key_valid,
-//             "usage_limit": usage_limit,
-//         }
 
 const data: Ref<DataItem[]> = ref([])
 const apiKey = getQueryParam('api_key') || (localStorage.getItem('SJ_API_KEY') as string)
@@ -169,12 +161,23 @@ const isDarkMode = ref(false)
 const getTagColor = computed(() => (item: DataItem) => {
   if (item.is_session_login) return '#87d068'
   if (item.type === 'normal') return '#2db7f5'
+  if (item.usage < 10 && item.status !== 'cd') return '#ffff00' // 添加这一行
   return '#f50'
 })
 const usageLimit: Ref<number> = ref(0)
 const currentUsage: Ref<number> = ref(0)
 
 const goUrl = async (cardData: DataItem) => {
+
+
+  if (cardData.meta_data && 'official_login' in cardData.meta_data) {
+  if (cardData.meta_data['official_login']) {
+    window.open('https://claude35.liuli.585dg.com', '_blank')
+    return
+  }
+}
+
+
   if (!cardData.is_session_login) {
     const targetURLBase = window.location.protocol + '//' + window.location.host + '/claude/chat'
     const targetURL =
@@ -219,10 +222,11 @@ const goUrl = async (cardData: DataItem) => {
       message.info('进入官网1：1登录页面')
       const loginUrl = loginInRes.data.login_url
       const targetURL = `${reverseClaudeBaseUrl}${loginUrl}`
+      window.open(targetURL, '_blank')
       // 尝试打开新窗口      // }) change into set time interval
-      setTimeout(() => {
-        window.open(targetURL, '_blank')
-      }, 1000)
+      // setTimeout(() => {
+      //   window.open(targetURL, '_blank')
+      // }, 1000)
     } else {
       const errorMessage = loginInRes.message
       message.error(errorMessage)
@@ -296,6 +300,13 @@ onMounted(async () => {
 </script>
 <style>
 /* 切换预览内容 */
+.message-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-top: 8px;
+}
 
 .night-mode {
   background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);

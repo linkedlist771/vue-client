@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
     "@types/markdown-it": "^14.1.1",
     "@uivjs/vue-github-corners": "^1.0.1",
     "@vueuse/core": "^10.11.1",
@@ -21,6 +22,7 @@
     "date-fns": "^3.6.0",
     "dexie": "^3.2.4",
     "highlight.js": "^11.8.0",
+    "icons材lwea": "link:@ant-design/icons材lwea",
     "katex": "^0.16.8",
     "lodash-es": "4.17.21",
     "markdown-it": "^13.0.1",
