@@ -28,7 +28,11 @@
       <a-list :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 5 }" :data-source="data">
         <template #renderItem="{ item }">
           <a-list-item :key="item.idx">
-            <a-button :class="['custom-button', 'button-' + item.idx]" block>
+            <a-button
+              class="custom-button"
+              block
+              :style="{ backgroundColor: getColor(item.idx), borderColor: getColor(item.idx) }"
+            >
               <a :href="item.href" class="py-2 sm:py-4 text-center block w-full">{{ item.text }}</a>
             </a-button>
           </a-list-item>
@@ -44,13 +48,13 @@ import { ref, onMounted } from 'vue'
 const data = ref([
   {
     idx: 1,
-    href: '/chat',
-    text: 'claude独享入口'
+    href: 'https://claude35.liuli.585dg.com',
+    text: 'claude账号池'
   },
   {
     idx: 2,
-    href: 'https://claude35.liuli.585dg.com',
-    text: 'claude官网站'
+    href: '/chat',
+    text: 'claude独享入口'
   },
   {
     idx: 3,
@@ -66,17 +70,40 @@ const data = ref([
     idx: 5,
     href: 'https://shop.liuli.585dg.com',
     text: '账号购买商城'
-  }
+  },
+  {
+    idx: 6,
+    href: 'https://nzrio8u1kt.feishu.cn/docx/Es3Ldt1gJovpooxk3WXcTnXknKe?from=from_copylink',
+    text: 'claude使用攻略'
+  },
+  
+
+  // 可以在这里添加更多按钮
 ])
 
-onMounted(() => {
-  const apiKey = localStorage.getItem('SJ_API_KEY')
-  if (apiKey) {
-    const baseUrl = window.location.protocol + '//' + window.location.host
-    const targetUrl = baseUrl + '/claude/status' + '?api_key=' + apiKey
-    data.value[0].href = targetUrl
-  }
-})
+const colorMap = [
+  '#A5D6A7', // 浅绿色
+  '#90CAF9', // 浅蓝色
+  '#FFF59D', // 浅黄色
+  '#CE93D8', // 浅紫色
+  '#FFAB91', // 浅橙色
+  '#2196F3', // 蓝色
+  // 可以添加更多颜色
+]
+
+function getColor(idx: number) {
+  const colorIndex = (idx - 1) % colorMap.length
+  return colorMap[colorIndex]
+}
+
+// onMounted(() => {
+//   const apiKey = localStorage.getItem('SJ_API_KEY')
+//   if (apiKey) {
+//     const baseUrl = window.location.protocol + '//' + window.location.host
+//     const targetUrl = baseUrl + '/claude/status' + '?api_key=' + apiKey
+//     data.value[0].href = targetUrl
+//   }
+// })
 </script>
 
 <style scoped>
@@ -88,28 +115,7 @@ onMounted(() => {
   padding: 10px 5px;
 }
 
-.button-1 {
-  background-color: #A5D6A7; /* 浅绿色 */
-  border-color: #A5D6A7;
-}
-.button-2 {
-  background-color: #90CAF9; /* 浅蓝色 */
-  border-color: #90CAF9;
-}
-.button-3 {
-  background-color: #FFF59D; /* 浅黄色 */
-  border-color: #FFF59D;
-}
-.button-4 {
-  background-color: #CE93D8; /* 浅紫色 */
-  border-color: #CE93D8;
-}
-.button-5 {
-  background-color: #FFAB91; /* 浅橙色 */
-  border-color: #FFAB91;
-}
-
-.button-1:hover, .button-2:hover, .button-3:hover, .button-4:hover, .button-5:hover {
+.custom-button:hover {
   opacity: 0.8;
 }
 
