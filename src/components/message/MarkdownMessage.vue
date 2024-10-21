@@ -1,11 +1,3 @@
-<!-- <template>
-  <div
-    class="content rounded-2xl"
-    :class="{ typing: loading }"
-    @click="handleClick($event)"
-    v-html="htmlStr"
-  ></div>
-</template> -->
 <template>
   <div
     class="conversation-item"
@@ -62,34 +54,6 @@
           <path fill="#333333" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
         </svg>
       </button>
-      <!-- 
-      <button
-        v-if="props.index % 2 !== 0"
-        @click="regenerateContent"
-        class="action-button"
-        :style="{
-          border: 'none',
-          background: 'none',
-          padding: 0,
-          opacity: hasValidVueCode ? 1 : 0.5,
-          cursor: hasValidVueCode ? 'pointer' : 'not-allowed'
-        }"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-          class="icon-md-heavy"
-        >
-          <path
-            fill="currentColor"
-            d="M3.07 10.876C3.623 6.436 7.41 3 12 3a9.15 9.15 0 0 1 6.012 2.254V4a1 1 0 1 1 2 0v4a1 1 0 0 1-1 1H15a1 1 0 1 1 0-2h1.957A7.15 7.15 0 0 0 12 5a7 7 0 0 0-6.946 6.124 1 1 0 1 1-1.984-.248m16.992 1.132a1 1 0 0 1 .868 1.116C20.377 17.564 16.59 21 12 21a9.15 9.15 0 0 1-6-2.244V20a1 1 0 1 1-2 0v-4a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H7.043A7.15 7.15 0 0 0 12 19a7 7 0 0 0 6.946-6.124 1 1 0 0 1 1.116-.868"
-          ></path>
-        </svg>
-      </button> -->
-
       <button
         v-if="props.role === 'assistant'"
         @click="renderContent"

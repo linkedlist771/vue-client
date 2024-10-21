@@ -153,6 +153,7 @@ type Message = {
   file?: { type: string; url: string; name: string; loading: boolean }
   timestamp?: string
 }
+
 type MessageItem = {
   messages: Message[]
   conversation_id: string
@@ -253,7 +254,7 @@ const isArtifactsEnabled = ref(localStorage.getItem('isArtifactsEnabled') === 't
 watch(isArtifactsEnabled, (newValue) => {
   localStorage.setItem('isArtifactsEnabled', newValue.toString())
 })
-const handleChange = (info: UploadChangeParam) => {}
+const handleChange = (info: UploadChangeParam) => { }
 const isImageType = (type: string) => {
   return type.includes('image')
 }
@@ -578,34 +579,21 @@ onUnmounted(() => {
     </div> -->
 
     <a-layout class="absolute w-full h-full inset-0">
-      <a-layout-sider
-        collapsed-width="0"
-        :style="siderStyle"
-        :width="sideWidth"
-        :zeroWidthTriggerStyle="zeroWidthTriggerStyle"
-        v-model:collapsed="siderCollapsed"
-      >
+      <a-layout-sider collapsed-width="0" :style="siderStyle" :width="sideWidth"
+        :zeroWidthTriggerStyle="zeroWidthTriggerStyle" v-model:collapsed="siderCollapsed">
         <a-spin :spinning="sideLoading">
           <a-list :locale="{ emptyText: '暂无聊天记录' }">
             <template v-for="(conversations, group) in groupedConversations" :key="group">
               <template v-if="conversations.length">
                 <div class="group-header">{{ group }}</div>
-                <a-list-item
-                  v-for="item in conversations"
-                  :key="item.conversation_id"
-                  style="padding: 10px 5px"
-                >
+                <a-list-item v-for="item in conversations" :key="item.conversation_id" style="padding: 10px 5px">
                   <div class="flex relative w-full cursor-pointer" @click="changeItem(item)">
                     <icon icon="icon-a-01_ai" :style="{ width: '20px', height: '20px' }"></icon>
-                    <div
-                      class="ml-4px w-8/10 text-ellipsis overflow-hidden whitespace-nowrap text-left"
-                    >
+                    <div class="ml-4px w-8/10 text-ellipsis overflow-hidden whitespace-nowrap text-left">
                       {{ item?.messages[0]?.content ?? '' }}
                     </div>
-                    <div
-                      class="delete cursor-pointer pos-absolute right-0 hover:color-gray-950"
-                      @click.stop="deleteItem(item)"
-                    >
+                    <div class="delete cursor-pointer pos-absolute right-0 hover:color-gray-950"
+                      @click.stop="deleteItem(item)">
                       <icon icon="icon-delete" :style="{ width: '20px', height: '20px' }"></icon>
                     </div>
                   </div>
@@ -639,32 +627,24 @@ onUnmounted(() => {
       <a-layout>
         <a-layout-header :style="headerStyle">
           <div class="w-full flex justify-end">
-            <div
-              class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
-              @click="toggleSider"
-            >
+            <div class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
+              @click="toggleSider">
               <icon icon="icon-switch" :style="{ width: '20px', height: '20px' }"></icon>
               <span class="ml-2">开启/关闭历史记录</span>
             </div>
 
-            <div
-              class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
-              @click="newChat"
-            >
+            <div class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
+              @click="newChat">
               <icon icon="icon-switch" :style="{ width: '20px', height: '20px' }"></icon>
               <span class="ml-2">新建聊天</span>
             </div>
-            <div
-              class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
-              @click="goUrl(`/claude/status?api_key=${apiKey}`)"
-            >
+            <div class="flex mr-20px justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
+              @click="goUrl(`/claude/status?api_key=${apiKey}`)">
               <icon icon="icon-switch" :style="{ width: '20px', height: '20px' }"></icon>
               <span class="ml-2">换号</span>
             </div>
-            <div
-              class="flex justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
-              @click="exit"
-            >
+            <div class="flex justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
+              @click="exit">
               <icon icon="icon-switch" :style="{ width: '20px', height: '20px' }"></icon>
               <span class="ml-2">退出</span>
             </div>
@@ -672,49 +652,28 @@ onUnmounted(() => {
         </a-layout-header>
         <a-layout-content :style="contentStyle">
           <div ref="messageContainerRef">
-            <div
-              class="w-full flex flex-wrap pt-5 pb-5 relative"
-              v-for="(item, index) in messageList"
-              :key="index"
-            >
+            <div class="w-full flex flex-wrap pt-5 pb-5 relative" v-for="(item, index) in messageList" :key="index">
               <div class="flex absolute">
-                <a-avatar
-                  :size="50"
-                  shape="circle"
-                  :src="roleImgMap[item.role]"
-                  :class="{
-                    'assistant-avatar-heartbeat':
-                      item.role === 'assistant' && index === messageList.length - 1 && isStreaming
-                  }"
-                ></a-avatar>
+                <a-avatar :size="50" shape="circle" :src="roleImgMap[item.role]" :class="{
+                  'assistant-avatar-heartbeat':
+                    item.role === 'assistant' && index === messageList.length - 1 && isStreaming
+                }"></a-avatar>
               </div>
               <div class="lh-normal flex pl-60px text-left">
                 <template v-if="item?.file">
                   <a-spin :spinning="item.file.loading">
-                    <div
-                      class="flex pa-10px border-solid border border-gray rounded-2xl pos-relative"
-                    >
+                    <div class="flex pa-10px border-solid border border-gray rounded-2xl pos-relative">
                       <div
                         class="pos-absolute -right-10px -top-10px bg-gray pa-5px rounded-full z-1 cursor-pointer hover:color-gray-950"
-                        @click="deleteImg(index)"
-                      >
-                        <icon
-                          icon="icon-delete"
-                          :style="{ width: '18px', height: '18px', color: '#000' }"
-                        ></icon>
+                        @click="deleteImg(index)">
+                        <icon icon="icon-delete" :style="{ width: '18px', height: '18px', color: '#000' }"></icon>
                       </div>
                       <div v-if="item.file.type == 'image'">
                         <a-image :width="100" class="object-cover" :src="item.file.url" />
                       </div>
                       <div class="flex color-gray-500" v-else>
-                        <icon
-                          class="mr-10px"
-                          icon="icon-fujian-"
-                          :style="{ width: '20px', height: '20px' }"
-                        ></icon>
-                        <div
-                          class="ml-5px whitespace-nowrap text-ellipsis overflow-hidden max-w-40vw"
-                        >
+                        <icon class="mr-10px" icon="icon-fujian-" :style="{ width: '20px', height: '20px' }"></icon>
+                        <div class="ml-5px whitespace-nowrap text-ellipsis overflow-hidden max-w-40vw">
                           {{ item.file.name }}{{ item.file.name }}{{ item.file.name
                           }}{{ item.file.name }}
                         </div>
@@ -723,12 +682,7 @@ onUnmounted(() => {
                   </a-spin>
                 </template>
                 <template v-else>
-                  <MarkDownMessage
-                    :text="item.content"
-                    :index="index"
-                    :role="item.role"
-                    v-if="!item.loading"
-                  >
+                  <MarkDownMessage :text="item.content" :index="index" :role="item.role" v-if="!item.loading">
                   </MarkDownMessage>
                   <a-spin size="large" v-else />
                 </template>
@@ -738,88 +692,55 @@ onUnmounted(() => {
         </a-layout-content>
         <a-layout-footer :style="footerStyle">
           <div class="flex items-center w-100px mb-10px absolute z-1 -top-25px left-18px">
-            <a-select
-              :disabled="modelDisabled"
-              name="model"
-              size="middle"
-              id="model"
-              placement="topLeft"
-              v-model:value="selectModelValue"
-            >
+            <a-select :disabled="modelDisabled" name="model" size="middle" id="model" placement="topLeft"
+              v-model:value="selectModelValue">
               <a-select-option value="claude-3-sonnet-20240229">claude-3-sonnet</a-select-option>
               <a-select-option value="claude-3-opus-20240229">claude-3-opus</a-select-option>
               <a-select-option value="claude-3-haiku-20240307">claude-3-haiku</a-select-option>
-              <a-select-option value="claude-3-5-sonnet-20240620"
-                >claude-3.5-sonnet</a-select-option
-              >
+              <a-select-option value="claude-3-5-sonnet-20240620">claude-3.5-sonnet</a-select-option>
             </a-select>
 
             <!-- 联网开关 -->
             <div class="ml-4 flex items-center">
-              <a-switch
-                v-model:checked="isNetworkEnabled"
-                :style="{ backgroundColor: isNetworkEnabled ? '#ba5b38' : '' }"
-              />
+              <a-switch v-model:checked="isNetworkEnabled"
+                :style="{ backgroundColor: isNetworkEnabled ? '#ba5b38' : '' }" />
               <span class="ml-2 text-gray-500 text-sm"> 联网 </span>
             </div>
 
             <!-- artifacts开关 -->
             <div class="ml-4 flex items-center">
-              <a-switch
-                v-model:checked="isArtifactsEnabled"
-                :disabled="modelDisabled"
-                :style="{ backgroundColor: isArtifactsEnabled ? '#ba5b38' : '' }"
-              />
+              <a-switch v-model:checked="isArtifactsEnabled" :disabled="modelDisabled"
+                :style="{ backgroundColor: isArtifactsEnabled ? '#ba5b38' : '' }" />
               <span class="ml-2 text-gray-500 text-sm"> 预览 </span>
             </div>
           </div>
 
           <div class="relative">
             <div
-              class="absolute cursor-pointer right-60px bg-[#f0eee5] color-gray-500 top-20px font-size-12px rounded-full z-1 flex w-35px h-35px justify-center items-center"
-            >
-              <a-upload
-                :before-upload="beforeUpload"
-                :disabled="uploadDisabled"
-                :accept="accept"
-                class="flex"
-                v-model:file-list="fileList"
-                name="file"
-                :max-count="1"
-                :customRequest="customRequest"
-                @change="handleChange"
-              >
+              class="absolute cursor-pointer right-60px bg-[#f0eee5] color-gray-500 top-20px font-size-12px rounded-full z-1 flex w-35px h-35px justify-center items-center">
+              <a-upload :before-upload="beforeUpload" :disabled="uploadDisabled" :accept="accept" class="flex"
+                v-model:file-list="fileList" name="file" :max-count="1" :customRequest="customRequest"
+                @change="handleChange">
                 <icon icon="icon-fujian-" :style="{ width: '20px', height: '20px' }"></icon>
                 <template #itemRender> </template>
               </a-upload>
             </div>
-            <div
-              id="send-button"
-              :class="
-                uploadDisabled
-                  ? 'bg-[#efefefff] cursor-not-allowed color-[#a3a6aa]'
-                  : 'bg-[#ba5b38] cursor-pointer'
+
+            <div id="send-button" :class="uploadDisabled
+              ? 'bg-[#efefefff] cursor-not-allowed color-[#a3a6aa]'
+              : 'bg-[#ba5b38] cursor-pointer'
               "
               class="absolute right-20px top-20px font-size-12px rounded-full z-1 flex w-35px h-35px justify-center items-center"
-              @click="sendMessage"
-            >
-              <icon
-                :icon="isSend ? 'icon-iconfontstop' : 'icon-jijianfasong-xianxing'"
-                :style="{ width: '20px', height: '20px' }"
-              ></icon>
+              @click="sendMessage">
+              <icon :icon="isSend ? 'icon-iconfontstop' : 'icon-jijianfasong-xianxing'"
+                :style="{ width: '20px', height: '20px' }"></icon>
             </div>
 
             <!-- 添加了一个处理黏贴的部分 -->
 
             <div class="pos-relative">
-              <a-textarea
-                @keydown="sendKeyDown"
-                @paste="handlePaste"
-                class="rounded-2xl pa-10px"
-                v-model:value="inputText"
-                placeholder="请输入内容或粘贴图片"
-                :auto-size="{ minRows: 4, maxRows: 8 }"
-              />
+              <a-textarea @keydown="sendKeyDown" @paste="handlePaste" class="rounded-2xl pa-10px"
+                v-model:value="inputText" placeholder="请输入内容或粘贴图片" :auto-size="{ minRows: 4, maxRows: 8 }" />
             </div>
           </div>
         </a-layout-footer>
@@ -841,7 +762,8 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1000; /* 确保它在其他元素之上 */
+  z-index: 1000;
+  /* 确保它在其他元素之上 */
 }
 
 .chat-view {
@@ -862,6 +784,7 @@ onUnmounted(() => {
   }
 
   .ant-layout-sider {
+
     .ant-spin-nested-loading,
     .ant-spin-container {
       height: 100%;
@@ -889,6 +812,7 @@ onUnmounted(() => {
 }
 
 @keyframes avatar-heartbeat {
+
   0%,
   100% {
     transform: scale(1);

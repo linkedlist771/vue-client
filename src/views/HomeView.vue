@@ -1,11 +1,8 @@
 <template>
-  <div
-    class="w-full pb-10 h-full absolute overflow-scroll"
-    style="background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%)"
-  >
+  <div class="w-full pb-10 h-full absolute overflow-scroll"
+    style="background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%)">
     <div
-      class="flex flex-col w-11/12 sm:w-9/12 mx-auto mt-10 sm:mt-20 border-solid border border-gray rounded-2xl p-5 sm:p-10 max-w-700px"
-    >
+      class="flex flex-col w-11/12 sm:w-9/12 mx-auto mt-10 sm:mt-20 border-solid border border-gray rounded-2xl p-5 sm:p-10 max-w-700px">
       <div class="w-full text-lg sm:text-xl font-semibold text-center">
         此为公益网址，欢迎大家免费体验，转发给有需要的朋友。
       </div>
@@ -23,16 +20,12 @@
       </div>
     </div>
     <div
-      class="flex w-11/12 sm:w-10/12 mx-auto mt-10 sm:mt-20 justify-center items-center max-w-800px bg-[#dcdadaff] p-4 sm:p-8 rounded-2xl"
-    >
+      class="flex w-11/12 sm:w-10/12 mx-auto mt-10 sm:mt-20 justify-center items-center max-w-800px bg-[#dcdadaff] p-4 sm:p-8 rounded-2xl">
       <a-list :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 5 }" :data-source="data">
         <template #renderItem="{ item }">
           <a-list-item :key="item.idx">
-            <a-button
-              class="custom-button"
-              block
-              :style="{ backgroundColor: getColor(item.idx), borderColor: getColor(item.idx) }"
-            >
+            <a-button class="custom-button" block
+              :style="{ backgroundColor: getColor(item.idx), borderColor: getColor(item.idx) }">
               <a :href="item.href" class="py-2 sm:py-4 text-center block w-full">{{ item.text }}</a>
             </a-button>
           </a-list-item>
@@ -48,35 +41,40 @@ import { ref, onMounted } from 'vue'
 const data = ref([
   {
     idx: 1,
+    href: 'https://poe.585dg.com',
+    text: 'poe账号池'
+  },
+  {
+    idx: 2,
     href: 'https://claude35.liuli.585dg.com',
     text: 'claude账号池'
   },
   {
-    idx: 2,
+    idx: 3,
     href: '/chat',
     text: 'claude独享入口'
   },
   {
-    idx: 3,
+    idx: 4,
     href: 'https://ai.yoyogpt.online/chatgpt/login',
     text: 'chatgpt账号池'
   },
   {
-    idx: 4,
+    idx: 5,
     href: 'https://chat.closeai.biz',
     text: 'chatgpt独享入口'
   },
   {
-    idx: 5,
+    idx: 6,
     href: 'https://shop.liuli.585dg.com',
     text: '账号购买商城'
   },
   {
-    idx: 6,
+    idx: 7,
     href: 'https://nzrio8u1kt.feishu.cn/docx/Es3Ldt1gJovpooxk3WXcTnXknKe?from=from_copylink',
-    text: 'claude使用攻略'
+    text: '账号池使用攻略'
   },
-  
+
 
   // 可以在这里添加更多按钮
 ])

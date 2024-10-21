@@ -1,43 +1,28 @@
 <template>
-  <div
-    class="w-full absolute"
-    :style="{
-      backgroundImage: isDarkMode
-        ? 'linear-gradient(-20deg, #E0C3FC 0%, #8EC5FC 100%)'
-        : 'linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%)'
-    }"
-  >
+  <div class="w-full absolute" :style="{
+    backgroundImage: isDarkMode
+      ? 'linear-gradient(-20deg, #E0C3FC 0%, #8EC5FC 100%)'
+      : 'linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%)'
+  }">
     <div class="flex flex-col w-9/12 mx-auto mt-10 gap-4">
       <!-- 添加切换按钮 -->
 
       <div class="absolute top-0 right-0 mt-4 mr-4 flex items-center">
 
-        <div
-          class="flex justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950"
-          @click="exit"
-        >
+        <div class="flex justify-center cursor-pointer items-center color-gray-500 hover:color-gray-950" @click="exit">
           <icon icon="icon-switch" :style="{ width: '20px', height: '20px' }"></icon>
           <span class="ml-2">退出</span>
         </div>
       </div>
 
-      <a-alert
-        v-if="showAnnouncement"
-        message="重要公告"
-        type="info"
-        show-icon
-        closable
-        @close="closeAnnouncement"
-        style="margin-bottom: 20px"
-      >
+      <a-alert v-if="showAnnouncement" message="重要公告" type="info" show-icon closable @close="closeAnnouncement"
+        style="margin-bottom: 20px">
         <template #description>
           <div v-html="announcementContent"></div>
         </template>
       </a-alert>
 
-      <div
-        class="text-lg border border-gray border-solid rounded-2xl pa-30px max-w-1000px mx-auto lh-relaxed"
-      >
+      <div class="text-lg border border-gray border-solid rounded-2xl pa-30px max-w-1000px mx-auto lh-relaxed">
         选择状态为可用的账号使用，当下方使用账号次数达到上限时，这时候你需要点击换号，选择一个可用的账号使用。
         要想长期保留记录，请在此账号下续费，不然记录会丢失。
         如出现报错或无回复，请尝试刷新页面或退出账号重新登录，开始新对话即可使用。
@@ -56,65 +41,48 @@
         <a-spin size="large" />
         <p style="margin-top: 10px">加载中账号中....</p>
       </div>
-      <a-list
-        v-else
-        :grid="{ gutter: 1, xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxl: 3 }"
-        :data-source="[{ id: 'additional', type: 'claude官网', meta_data:{
+      <a-list v-else :grid="{ gutter: 1, xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxl: 3 }" :data-source="[{
+        id: 'additional', type: 'claude官网', meta_data: {
           'official_login': true
         },
-       message: 'Claude官网(联系对接人获取秘钥)'
-        }, ...data, ]"
-      >
+        message: 'Claude官网(联系对接人获取秘钥)'
+      }, ...data,]">
 
 
         <template #renderItem="{ item }">
           <a-list-item :key="item.idx">
-         <a-card
-  :title="item.id"
-  @click="goUrl(item)"
-  :class="{
-    'cursor-pointer': true,
-    'card-plus': item.type === 'plus',
-    'card-normal': item.type === 'normal',
-    'card-cd': item.status === 'cd',
-    'card-noncd': item.status !== 'cd'
-  }"
->
-  <template #extra>
-    <a-tag :color="getTagColor(item)" :visible="item.is_session_login">官网1:1</a-tag>
-    <a-tag
-      :color="item.type === 'normal' ? '#2db7f5' : '#f50'"
-      :class="{
-        'tag-plus': item.type === 'plus',
-        'tag-normal': item.type === 'normal',
-        'tag-cd': item.status === 'cd',
-        'tag-noncd': item.status !== 'cd'
-      }"
-    >
-      {{ item.type }}
-    </a-tag>
-  </template>
+            <a-card :title="item.id" @click="goUrl(item)" :class="{
+              'cursor-pointer': true,
+              'card-plus': item.type === 'plus',
+              'card-normal': item.type === 'normal',
+              'card-cd': item.status === 'cd',
+              'card-noncd': item.status !== 'cd'
+            }">
+              <template #extra>
+                <a-tag :color="getTagColor(item)" :visible="item.is_session_login">官网1:1</a-tag>
+                <a-tag :color="item.type === 'normal' ? '#2db7f5' : '#f50'" :class="{
+                  'tag-plus': item.type === 'plus',
+                  'tag-normal': item.type === 'normal',
+                  'tag-cd': item.status === 'cd',
+                  'tag-noncd': item.status !== 'cd'
+                }">
+                  {{ item.type }}
+                </a-tag>
+              </template>
 
-  <a-row :gutter="16">
-    <a-col :span="12">
-      <a-statistic 
-        title="使用次数" 
-        :value="item.usage" 
-        :value-style="{ color: '#3f8600' }"
-      />
-    </a-col>
-    <a-col :span="12">
-      <a-statistic
-        title="状态"
-        :value="item.status === 'cd' ? '冷却' : '可用'"
-        :value-style="{ color: item.status === 'cd' ? '#cf1322' : '#3f8600' }"
-      />
-    </a-col>
-  </a-row>
-  <a-tooltip :title="item.message">
-    <div class="message-ellipsis">{{ item.message }}</div>
-  </a-tooltip>
-</a-card>
+              <a-row :gutter="16">
+                <a-col :span="12">
+                  <a-statistic title="使用次数" :value="item.usage" :value-style="{ color: '#3f8600' }" />
+                </a-col>
+                <a-col :span="12">
+                  <a-statistic title="状态" :value="item.status === 'cd' ? '冷却' : '可用'"
+                    :value-style="{ color: item.status === 'cd' ? '#cf1322' : '#3f8600' }" />
+                </a-col>
+              </a-row>
+              <a-tooltip :title="item.message">
+                <div class="message-ellipsis">{{ item.message }}</div>
+              </a-tooltip>
+            </a-card>
 
           </a-list-item>
         </template>
@@ -148,8 +116,6 @@ interface DataItem {
   is_session_login: boolean
   usage: number
   remaining: number
-  // 这个给一个默认值是false
-  // is_official_login: boolean = false
   meta_data: Record<string, any>
 }
 
@@ -171,11 +137,11 @@ const goUrl = async (cardData: DataItem) => {
 
 
   if (cardData.meta_data && 'official_login' in cardData.meta_data) {
-  if (cardData.meta_data['official_login']) {
-    window.open('https://claude35.liuli.585dg.com', '_blank')
-    return
+    if (cardData.meta_data['official_login']) {
+      window.open('https://claude35.liuli.585dg.com', '_blank')
+      return
+    }
   }
-}
 
 
   if (!cardData.is_session_login) {
@@ -318,7 +284,8 @@ onMounted(async () => {
 
 /* 添加自定义样式来放大开关 */
 .custom-switch {
-  transform: scale(1.5); /* 整体放大1.5倍 */
+  transform: scale(1.5);
+  /* 整体放大1.5倍 */
 }
 
 /* 可选：调整开关内部图标的大小和位置 */
@@ -329,8 +296,10 @@ onMounted(async () => {
 }
 
 .custom-switch :deep(.ant-switch-inner) {
-  font-size: 16px; /* 调整图标大小 */
-  line-height: 28px; /* 调整图标垂直位置 */
+  font-size: 16px;
+  /* 调整图标大小 */
+  line-height: 28px;
+  /* 调整图标垂直位置 */
 }
 
 /* 调整开关的整体尺寸 */
@@ -397,24 +366,31 @@ onMounted(async () => {
   0% {
     border-color: #ff69b4;
   }
+
   14% {
     border-color: #ff1493;
   }
+
   28% {
     border-color: #ff4500;
   }
+
   42% {
     border-color: #ff8c00;
   }
+
   56% {
     border-color: #ffd700;
   }
+
   70% {
     border-color: #adff2f;
   }
+
   84% {
     border-color: #00ff7f;
   }
+
   100% {
     border-color: #1e90ff;
   }
