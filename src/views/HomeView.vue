@@ -51,7 +51,7 @@ const data = ref([
   },
   {
     idx: 3,
-    href: 'https://claude35.liuli.585dg.com',
+    href: 'https://ai.liuli.585dg.com',
     text: 'claude独享入口'
   },
   {
