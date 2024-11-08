@@ -61,8 +61,8 @@ const data = ref([
   },
   {
     idx: 5,
-    href: 'https://chat.closeai.biz',
-    text: 'chatgpt独享入口'
+    href: 'https://chat.qqyunsd.com',
+    text: 'chatgpt直登站'
   },
   {
     idx: 6,
